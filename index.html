@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rizal and the Nation — A Digital Exhibit</title>
+  <meta name="description"
+    content="An online exhibit on how José Rizal's writings and life shaped Filipino nationalism." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Karla:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/additions.css" />
+  <link rel="stylesheet" href="css/improve.css" />
+</head>
+
+<body>
+  <div class="ink-progress" id="ink-progress" aria-hidden="true"></div>
+  <a class="skip" href="#exhibits">Skip to exhibits</a>
+
+  <header class="topbar" id="topbar">
+    <div class="topbar-in">
+      <a class="brand" href="#top">Rizal and the Nation</a>
+      <button class="menu-btn" type="button" id="menu-btn" aria-expanded="false" aria-controls="menu">Menu</button>
+      <nav class="menu" id="menu" aria-label="Sections">
+        <a href="#exhibits">Reading Room</a>
+        <a href="#timeline">Timeline</a>
+        <a href="#journey">Journey</a>
+        <a href="#archive">Archive</a>
+        <a href="#reflections">Reflections</a>
+      </nav>
+    </div>
+  </header>
+
+
+  <div class="page" id="top">
+    <header class="header">
+      <div>
+        <p class="eyebrow">Digital Exhibit</p>
+        <h1 class="title">Rizal and<br /><em class="title-em">the Nation</em></h1>
+        <svg class="flourish" viewBox="0 0 440 44" aria-hidden="true">
+          <path id="flo" pathLength="1" d="M4 30 C60 8 100 40 170 26 S270 6 330 24 S400 34 436 14" />
+          <g class="pen">
+            <g transform="rotate(-38)">
+              <path d="M0 0 L12 -3.5 L12 3.5 Z" fill="#26355d" />
+              <rect x="12" y="-4.5" width="8" height="9" fill="#a8905a" />
+              <rect x="20" y="-6" width="38" height="12" rx="6" fill="#26355d" />
+              <rect x="34" y="-6" width="3" height="12" fill="#a8905a" />
+            </g>
+            <animateMotion dur="2.6s" begin="0s" fill="freeze" calcMode="spline" keyPoints="0;1" keyTimes="0;1"
+              keySplines=".4 0 .3 1">
+              <mpath href="#flo" />
+            </animateMotion>
+          </g>
+        </svg>
+        <p class="lede">
+          How one man's novels, essays and last poem gave a scattered colony
+          a shared language for justice, and a reason to call itself a people.
+        </p>
+        <p class="pens">Writing also as <em>Laong Laan</em> and <em>Dimasalang</em></p>
+      </div>
+      <div class="header-right" id="header-meta" aria-live="polite">
+        <p class="header-meta">Loading exhibit…</p>
+      </div>
+    </header>
+
+    <!-- Exhibits -->
+    <section id="exhibits" aria-labelledby="exhibits-label">
+      <div class="section-row">
+        <h2 class="section-label" id="exhibits-label">Reading Room</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="chips" id="filters" role="group" aria-label="Filter by form"></div>
+      <div class="table-head exhibit-cols" aria-hidden="true">
+        <span class="th">Work</span>
+        <span class="th">Written</span>
+        <span class="th">Form</span>
+      </div>
+      <div class="table" id="exhibit-list">
+        <p class="status">Loading exhibits…</p>
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <section id="timeline" aria-labelledby="timeline-label">
+      <div class="section-row">
+        <h2 class="section-label" id="timeline-label">Timeline, 1861–1896</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="table timeline" id="timeline-list">
+        <p class="status">Loading timeline…</p>
+      </div>
+    </section>
+
+    <!-- Journey -->
+    <section id="journey" aria-labelledby="journey-label">
+      <div class="section-row">
+        <h2 class="section-label" id="journey-label">The Journey</h2>
+        <div class="section-divider"></div>
+      </div>
+      <ol class="journey" id="journey-list"></ol>
+    </section>
+
+    <!-- Archive -->
+    <section id="archive" aria-labelledby="archive-label">
+      <div class="section-row">
+        <h2 class="section-label" id="archive-label">From the Archive</h2>
+        <div class="section-divider"></div>
+      </div>
+      <!-- legacy stubs so js/additions.js keeps working; hidden -->
+      <div hidden>
+        <figure id="fact">
+          <blockquote id="fact-text"></blockquote>
+          <figcaption id="fact-src"></figcaption>
+        </figure>
+        <button type="button" id="fact-next" tabindex="-1">Turn the page</button>
+      </div>
+
+      <div class="book" id="book">
+        <div class="spread">
+          <div class="pg pg-left" id="pg-left"></div>
+          <div class="pg pg-right" id="pg-right"></div>
+          <div class="leaf leaf-r" id="leaf-r">
+            <div class="face front pg pg-right" id="lr-front"></div>
+            <div class="face back pg pg-left" id="lr-back"></div>
+          </div>
+          <div class="leaf leaf-l" id="leaf-l">
+            <div class="face front pg pg-left" id="ll-front"></div>
+            <div class="face back pg pg-right" id="ll-back"></div>
+          </div>
+        </div>
+        <div class="book-controls">
+          <button class="btn btn-ghost" type="button" id="book-prev">Previous page</button>
+          <div class="dots" id="book-dots" role="group" aria-label="Jump to a page"></div>
+          <button class="btn" type="button" id="book-next">Next page</button>
+        </div>
+        <p class="book-count" id="book-count" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- Reflections -->
+    <section id="reflections" aria-labelledby="reflections-label">
+      <div class="section-row">
+        <h2 class="section-label" id="reflections-label">Visitor Reflections</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      <form class="form" id="reflection-form" novalidate>
+        <p class="form-intro">
+          What did you learn about nationalism from Rizal? Leave a short note for the next visitor.
+        </p>
+        <label class="field">
+          <span class="field-label">Your name</span>
+          <input class="input" type="text" name="name" maxlength="80" required autocomplete="name" />
+        </label>
+        <label class="field">
+          <span class="field-label">Your reflection</span>
+          <textarea class="input textarea" name="message" rows="4" minlength="10" maxlength="500" required></textarea>
+          <span class="field-count" id="char-count">0 / 500</span>
+        </label>
+        <div class="form-actions">
+          <button class="btn" type="submit" id="submit-btn">Post reflection</button>
+          <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+
+      <div class="table" id="reflection-list">
+        <p class="status">Loading reflections…</p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p class="header-meta">An educational project · Sources: Rizal's writings and standard Philippine history
+        references</p>
+    </footer>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script src="js/additions.js"></script>
+  <script src="js/book.js"></script>
+  <script src="js/nav.js"></script>
+</body>
+
+</html>

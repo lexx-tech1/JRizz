@@ -1,0 +1,180 @@
+/* Fetches data from the PHP API (api/*.php) and renders the exhibit.
+   All text is inserted with textContent, so visitor input can never inject HTML. */
+
+const $ = (id) => document.getElementById(id);
+
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text != null) node.textContent = text;
+  return node;
+}
+
+async function getJSON(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Request failed (${res.status})`);
+  return res.json();
+}
+
+function showError(container, message) {
+  container.replaceChildren(el("p", "status error", message));
+}
+
+/* ─── Exhibits ────────────────────────────────────────────────────────── */
+function renderExhibits(items) {
+  const list = $("exhibit-list");
+  if (!items.length) {
+    list.replaceChildren(el("p", "status", "No exhibits have been added yet."));
+    return;
+  }
+  list.replaceChildren(
+    ...items.map((ex) => {
+      const details = el("details", "row exhibit");
+
+      const summary = el("summary");
+      const titleWrap = el("span");
+      titleWrap.append(el("span", "work-title", ex.title), el("span", "work-summary", ex.summary));
+      summary.append(titleWrap, el("span", "cell-small", ex.year_written), el("span", "badge", ex.category));
+
+      const body = el("div", "exhibit-body");
+      body.append(el("p", null, ex.body), el("p", "exhibit-place", `Written in ${ex.place}, ${ex.year_written}`));
+
+      details.append(summary, body);
+      return details;
+    })
+  );
+}
+
+/* ─── Timeline ────────────────────────────────────────────────────────── */
+function renderTimeline(items) {
+  const list = $("timeline-list");
+  if (!items.length) {
+    list.replaceChildren(el("p", "status", "The timeline is empty."));
+    return;
+  }
+  list.replaceChildren(
+    ...items.map((ev, i) => {
+      const row = el("article", "row event" + (i === items.length - 1 ? " final" : ""));
+      const when = el("div");
+      when.append(el("span", "event-year", String(ev.year)), el("span", "event-date", ev.date_label));
+      const what = el("div");
+      what.append(el("h3", "event-title", ev.title), el("p", "event-desc", ev.description));
+      row.append(when, what);
+      return row;
+    })
+  );
+}
+
+/* ─── Reflections ─────────────────────────────────────────────────────── */
+function formatDate(value) {
+  return new Date(String(value).replace(" ", "T")).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function reflectionNode(r) {
+  const row = el("article", "row reflection");
+  const by = el("p", "reflection-by");
+  by.append(el("strong", null, r.name), document.createTextNode(` · ${formatDate(r.created_at)}`));
+  row.append(el("p", "reflection-text", r.message), by);
+  return row;
+}
+
+function renderReflections(items) {
+  const list = $("reflection-list");
+  if (!items.length) {
+    list.replaceChildren(el("p", "status", "No reflections yet. Be the first to post one."));
+    return;
+  }
+  list.replaceChildren(...items.map(reflectionNode));
+}
+
+function setMeta(counts) {
+  const box = $("header-meta");
+  const stat = (n, label) => {
+    const p = el("p", "header-meta");
+    p.append(el("span", "meta-count", String(n)), el("span", "meta-label", label));
+    return p;
+  };
+  box.replaceChildren(
+    stat(counts.exhibits, "Works on display"),
+    stat(counts.timeline, "Milestones"),
+    stat(counts.reflections, "Reflections"),
+    stat("1861–96", "Rizal's lifetime")
+  );
+}
+
+/* ─── Guestbook form ──────────────────────────────────────────────────── */
+function setupForm(state) {
+  const form = $("reflection-form");
+  const msg = $("form-msg");
+  const btn = $("submit-btn");
+  const count = $("char-count");
+  const textarea = form.elements.message;
+
+  textarea.addEventListener("input", () => {
+    count.textContent = `${textarea.value.length} / 500`;
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg.className = "form-msg";
+    msg.textContent = "";
+
+    const name = form.elements.name.value.trim();
+    const message = textarea.value.trim();
+    if (!name) return fail("Enter your name.");
+    if (message.length < 10) return fail("Write at least 10 characters.");
+
+    btn.disabled = true;
+    btn.textContent = "Posting…";
+    try {
+      const res = await fetch("api/submit_reflection.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, message }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not post your reflection.");
+
+      // Show it straight away, at the top of the list
+      const list = $("reflection-list");
+      if (list.querySelector(".status")) list.replaceChildren();
+      list.prepend(reflectionNode(data));
+      state.reflections += 1;
+      setMeta(state);
+
+      form.reset();
+      count.textContent = "0 / 500";
+      msg.textContent = "Reflection posted.";
+    } catch (err) {
+      fail(err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Post reflection";
+    }
+
+    function fail(text) {
+      msg.className = "form-msg error";
+      msg.textContent = text;
+    }
+  });
+}
+
+/* ─── Start ───────────────────────────────────────────────────────────── */
+async function init() {
+  const state = { exhibits: 0, timeline: 0, reflections: 0 };
+
+  const jobs = [
+    getJSON("api/get_exhibits.php").then((d) => { state.exhibits = d.length; renderExhibits(d); })
+      .catch(() => showError($("exhibit-list"), "Exhibits could not be loaded. Check that Apache and MySQL are running.")),
+    getJSON("api/get_timeline.php").then((d) => { state.timeline = d.length; renderTimeline(d); })
+      .catch(() => showError($("timeline-list"), "The timeline could not be loaded.")),
+    getJSON("api/get_reflections.php").then((d) => { state.reflections = d.length; renderReflections(d); })
+      .catch(() => showError($("reflection-list"), "Reflections could not be loaded.")),
+  ];
+
+  await Promise.all(jobs);
+  setMeta(state);
+  setupForm(state);
+}
+
+init();
