@@ -20,27 +20,72 @@ function showError(container, message) {
   container.replaceChildren(el("p", "status error", message));
 }
 
-/* ─── Exhibits ────────────────────────────────────────────────────────── */
+/* ─── Exhibits: each work is a 3D book; turn it over to read its influence ─ */
+const COVERS = { Novel: ["#7a2a22", "#1f2a44"], Essay: ["#2f4a3c"], Poem: ["#5a3a1e"] };
+
+// Long single words (FILIBUSTERISMO) must still fit the cover
+function fitTitle(node, title) {
+  const longest = Math.max(...title.split(" ").map((w) => w.length));
+  node.style.fontSize = `${Math.min(36, Math.floor(230 / (longest * 0.66)))}px`;
+  return node;
+}
+
 function renderExhibits(items) {
   const list = $("exhibit-list");
   if (!items.length) {
     list.replaceChildren(el("p", "status", "No exhibits have been added yet."));
     return;
   }
+  const seen = {};
   list.replaceChildren(
     ...items.map((ex) => {
-      const details = el("details", "row exhibit");
+      const palette = COVERS[ex.category] || ["#26355d"];
+      const color = palette[(seen[ex.category] = (seen[ex.category] ?? -1) + 1) % palette.length];
 
-      const summary = el("summary");
-      const titleWrap = el("span");
-      titleWrap.append(el("span", "work-title", ex.title), el("span", "work-summary", ex.summary));
-      summary.append(titleWrap, el("span", "cell-small", ex.year_written), el("span", "badge", ex.category));
+      const card = el("article", "exhibit book3d");
+      card.style.setProperty("--cover", color);
+      const inner = el("div", "b3-inner");
 
-      const body = el("div", "exhibit-body");
-      body.append(el("p", null, ex.body), el("p", "exhibit-place", `Written in ${ex.place}, ${ex.year_written}`));
+      const front = el("div", "b3-face b3-front");
+      const flip = el("button", "b3-flip", "Read its influence");
+      flip.type = "button";
+      front.append(
+        el("span", "b3-author", "José Rizal"),
+        fitTitle(el("h3", "b3-title", ex.title), ex.title),
+        el("p", "b3-sum", ex.summary),
+        el("span", "badge", ex.category),
+        el("span", "b3-year", `${ex.place} · ${ex.year_written}`),
+        flip
+      );
 
-      details.append(summary, body);
-      return details;
+      const back = el("div", "b3-face b3-back");
+      const flipBack = el("button", "b3-flip", "Back to the cover");
+      flipBack.type = "button";
+      back.append(
+        el("p", "b3-kicker", "Influence on the nation"),
+        el("h3", "b3-back-title", ex.title),
+        el("p", "b3-body", ex.body),
+        el("p", "exhibit-place", `Written in ${ex.place}, ${ex.year_written}`),
+        flipBack
+      );
+
+      inner.append(front, el("div", "b3-spine"), el("div", "b3-pages"), back);
+      card.append(inner);
+
+      const turn = (open) => {
+        card.classList.toggle("open", open);
+        front.inert = open;
+        back.inert = !open;
+        (open ? flipBack : flip).focus({ preventScroll: true });
+      };
+      back.inert = true;
+      flip.addEventListener("click", (e) => { e.stopPropagation(); turn(true); });
+      flipBack.addEventListener("click", (e) => { e.stopPropagation(); turn(false); });
+      card.addEventListener("click", (e) => {
+        if (e.target.closest("button") || getSelection().toString()) return;
+        turn(!card.classList.contains("open"));
+      });
+      return card;
     })
   );
 }

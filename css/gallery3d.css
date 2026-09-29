@@ -1,0 +1,481 @@
+/* The 3D Gallery (js/gallery3d.js). Load after improve.css. */
+.g3d-intro {
+    font-family: var(--serif);
+    font-size: clamp(19px, 1.6vw, 23px);
+    color: var(--c-ink-3);
+    max-width: 38em;
+    margin: 28px 0 28px;
+}
+
+.g3d {
+    position: relative;
+}
+
+.g3d-stage {
+    position: relative;
+    height: clamp(440px, 74vh, 740px);
+    background: #2a241d;
+    border: 1px solid var(--c-ink);
+    overflow: hidden;
+}
+
+.g3d-stage canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    touch-action: none;
+}
+
+.g3d-stage canvas:active {
+    cursor: grabbing;
+}
+
+/* HUD */
+.g3d-hud {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+    pointer-events: none;
+}
+
+.g3d-hud > * {
+    pointer-events: auto;
+}
+
+.g3d-pass {
+    background: rgba(246, 244, 238, .94);
+    border: 1px solid var(--c-ink);
+    padding: 10px 14px 12px;
+}
+
+.g3d-pass-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--c-ink-3);
+    margin-bottom: 8px;
+}
+
+.g3d-pass-head strong {
+    font-weight: 500;
+    color: var(--c-ink);
+}
+
+.g3d-stamps {
+    display: grid;
+    grid-template-columns: repeat(5, 26px);
+    gap: 6px;
+}
+
+.g3d-stamp {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px dashed var(--c-stone);
+    background: transparent;
+    font: 400 11px var(--sans);
+    color: var(--c-muted-aa);
+    cursor: pointer;
+    padding: 0;
+    transition: transform .2s var(--ease), background .2s ease;
+}
+
+.g3d-stamp:hover {
+    transform: scale(1.12);
+}
+
+.g3d-stamp.got {
+    border: 1px solid #8a6a2e;
+    background: #c9a44f;
+    color: #2b2010;
+    font-weight: 500;
+    animation: g3d-pop .45s var(--ease);
+}
+
+@keyframes g3d-pop {
+    0% { transform: scale(.4) rotate(-20deg); }
+    70% { transform: scale(1.25) rotate(6deg); }
+    100% { transform: scale(1); }
+}
+
+.g3d-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.g3d .g3d-actions .btn-ghost {
+    color: var(--c-bg);
+    border-color: rgba(246, 244, 238, .7);
+    background: rgba(27, 27, 25, .35);
+}
+
+.g3d-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 8px 14px;
+    background: rgba(27, 27, 25, .6);
+    color: var(--c-bg);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.g3d-tip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 6px 10px;
+    background: var(--c-ink);
+    color: var(--c-bg);
+    font-family: var(--serif);
+    font-size: 17px;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.g3d-loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 24px;
+    text-align: center;
+    color: var(--c-bg);
+    font-family: var(--serif);
+    font-size: 22px;
+}
+
+.g3d-stage.no-webgl {
+    height: auto;
+    min-height: 200px;
+}
+
+.g3d-stage.no-webgl canvas {
+    display: none;
+}
+
+.g3d-stage.no-webgl .g3d-hint {
+    display: none;
+}
+
+/* Artifact card */
+.g3d-panel {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    bottom: 16px;
+    width: min(400px, 44%);
+    overflow-y: auto;
+    background: var(--c-bg);
+    border: 1px solid var(--c-ink);
+    padding: 26px 26px 22px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .35);
+    animation: g3d-in .35s var(--ease);
+}
+
+@keyframes g3d-in {
+    from { opacity: 0; transform: translateX(16px); }
+}
+
+.g3d-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    background: transparent;
+    font-size: 26px;
+    line-height: 1;
+    color: var(--c-ink-3);
+    cursor: pointer;
+}
+
+.g3d-kicker {
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--c-muted-aa);
+    margin: 0 36px 8px 0;
+}
+
+.g3d-title {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 1.1;
+    color: var(--c-ink);
+    margin: 0 0 14px;
+}
+
+.g3d-text {
+    font-size: 15px;
+    margin: 0 0 12px;
+}
+
+.g3d-sub {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--c-accent);
+    margin: 18px 0 6px;
+}
+
+.g3d-fact {
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.4;
+    background: var(--c-accent-dim);
+    border-left: 3px solid var(--c-accent);
+    padding: 10px 14px;
+    margin: 16px 0 18px;
+}
+
+.g3d-fact span {
+    font-style: italic;
+    color: var(--c-accent);
+}
+
+.g3d-quiz {
+    border-top: 1px solid var(--c-border);
+    padding-top: 14px;
+}
+
+.g3d-q-label {
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: #8a6a2e;
+    margin: 0 0 4px;
+}
+
+.g3d-q {
+    font-family: var(--serif);
+    font-size: 21px;
+    color: var(--c-ink);
+    line-height: 1.25;
+    margin: 0 0 10px;
+}
+
+.g3d-opts {
+    display: grid;
+    gap: 6px;
+}
+
+.g3d-opt {
+    text-align: left;
+    font: 400 14px var(--sans);
+    color: var(--c-ink-2);
+    background: #fff;
+    border: 1px solid var(--c-border);
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+}
+
+.g3d-opt:hover:not(:disabled) {
+    border-color: var(--c-ink);
+}
+
+.g3d-opt:disabled {
+    cursor: default;
+}
+
+.g3d-opt.right {
+    background: var(--c-accent-dim);
+    border-color: var(--c-accent);
+    color: var(--c-ink);
+}
+
+.g3d-opt.right::before {
+    content: "✓ ";
+    color: var(--c-accent);
+}
+
+.g3d-opt.wrong {
+    color: var(--c-error-ink);
+    border-color: var(--c-error-ink);
+    text-decoration: line-through;
+    opacity: .75;
+    animation: g3d-shake .35s;
+}
+
+@keyframes g3d-shake {
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.g3d-explain {
+    font-size: 14px;
+    color: var(--c-ink-3);
+    margin: 10px 0 0;
+    min-height: 1em;
+}
+
+.g3d-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+/* Completion card */
+.g3d-done {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(27, 27, 25, .55);
+    padding: 16px;
+}
+
+.g3d-done[hidden] {
+    display: none;
+}
+
+.g3d-done-card {
+    max-width: 440px;
+    background: var(--c-bg);
+    border: 1px solid var(--c-ink);
+    padding: 30px;
+    text-align: center;
+    animation: g3d-pop .5s var(--ease);
+}
+
+.g3d-done-card h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 32px;
+    color: var(--c-ink);
+    margin: 6px 0 10px;
+}
+
+.g3d-done-card p {
+    margin: 0 0 18px;
+}
+
+.g3d-done-card .g3d-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.g3d-done-card a.btn {
+    text-decoration: none;
+}
+
+/* Artifact list (keyboard and small screens) */
+.g3d-index {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.g3d-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 10px;
+    text-align: left;
+    background: transparent;
+    border: 1px solid var(--c-border);
+    padding: 10px 12px;
+    cursor: pointer;
+    font-family: var(--sans);
+    color: var(--c-ink-2);
+    transition: border-color .15s ease, background .15s ease;
+}
+
+.g3d-item:hover,
+.g3d-item[aria-current="true"] {
+    border-color: var(--c-ink);
+    background: #fff;
+}
+
+.g3d-item-no {
+    grid-row: span 2;
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--c-muted-aa);
+    padding-top: 4px;
+}
+
+.g3d-item-title {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--c-ink);
+    line-height: 1.2;
+}
+
+.g3d-item-when {
+    font-size: 12px;
+    color: var(--c-muted-aa);
+}
+
+.g3d-item.got .g3d-item-no::after {
+    content: " ✓";
+    color: #8a6a2e;
+}
+
+@media (max-width: 760px) {
+    .g3d-stage {
+        height: 62vh;
+        min-height: 380px;
+    }
+
+    .g3d-panel {
+        position: static;
+        width: auto;
+        margin-top: 12px;
+        box-shadow: none;
+        animation: none;
+    }
+
+    .g3d-hud {
+        top: 10px;
+        left: 10px;
+    }
+
+    .g3d-pass {
+        padding: 8px 10px 10px;
+    }
+
+    .g3d-stamps {
+        grid-template-columns: repeat(10, 20px);
+        gap: 4px;
+    }
+
+    .g3d-stamp {
+        width: 20px;
+        height: 20px;
+        font-size: 9px;
+    }
+
+    .g3d-hint {
+        font-size: 10px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .g3d-stamp.got,
+    .g3d-panel,
+    .g3d-done-card,
+    .g3d-opt.wrong {
+        animation: none;
+    }
+}
