@@ -1,5 +1,5 @@
-/* Fetches data from the PHP API (api/*.php) and renders the exhibit.
-   All text is inserted with textContent, so visitor input can never inject HTML. */
+/* Renders the Reading Room, Timeline and header stats from the data below.
+   The site is fully static: no PHP or database needed. */
 
 const $ = (id) => document.getElementById(id);
 
@@ -10,15 +10,110 @@ function el(tag, className, text) {
   return node;
 }
 
-async function getJSON(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Request failed (${res.status})`);
-  return res.json();
-}
+/* Exhibit content (formerly in the MySQL database). Edit here to change the Reading Room and Timeline. */
+const EXHIBITS = [
+  {
+    title: "Noli Me Tangere",
+    category: "Novel",
+    year_written: "1887",
+    place: "Berlin",
+    summary: "Rizal's first novel, a portrait of Philippine society under Spanish rule.",
+    body: "Published in Berlin in March 1887, the novel follows Crisóstomo Ibarra as he returns from Europe and finds a country governed by fear. Through the friars, the civil guard and the local elite, Rizal shows how abuse of power was woven into everyday life: in the church, the school and the courtroom. Readers in the Philippines were given a shared picture of their own society for the first time. Spanish authorities banned the book, yet copies circulated in secret, and its characters became a common vocabulary for discussing injustice.",
+  },
+  {
+    title: "Sobre la Indolencia de los Filipinos",
+    category: "Essay",
+    year_written: "1890",
+    place: "Barcelona",
+    summary: "An essay answering the claim that Filipinos were naturally lazy.",
+    body: "Serialized in La Solidaridad in 1890, the essay argues that the so-called indolence of Filipinos was a result of colonial policy, not character. Forced labor, heavy taxes, poor education and the lack of opportunity discouraged effort. Rizal also points to the climate and to the loss of pre-colonial trade. By rejecting a stereotype used to justify Spanish rule, he helped Filipinos see their condition as a product of history that could be changed.",
+  },
+  {
+    title: "El Filibusterismo",
+    category: "Novel",
+    year_written: "1891",
+    place: "Ghent",
+    summary: "The sequel, darker in tone, dedicated to Gomez, Burgos and Zamora.",
+    body: "Published in Ghent in September 1891, the sequel follows Simoun, a wealthy jeweler who plots revenge against the colonial order. The book is more openly political than the Noli. It questions whether reform through Spanish institutions can work and examines the cost of violent revolution. Its dedication to the priests executed in 1872 links Rizal's work directly to the memory of that injustice. Later generations read it as a warning that liberation requires moral preparation as well as courage.",
+  },
+  {
+    title: "Mi Último Adiós",
+    category: "Poem",
+    year_written: "1896",
+    place: "Fort Santiago, Manila",
+    summary: "A farewell poem written in Rizal's cell before his execution.",
+    body: "Rizal wrote the poem in the last days before December 30, 1896, and it was found after his death. It has no title in the original manuscript; the name by which it is known was given later. The poem speaks of dying for the country without asking for reward, and it addresses the homeland directly as a beloved. Translated into many languages, it has been read at public gatherings for over a century and remains a common way for Filipinos to express love of country.",
+  },
+];
 
-function showError(container, message) {
-  container.replaceChildren(el("p", "status error", message));
-}
+const TIMELINE = [
+  {
+    year: 1861,
+    date_label: "June 19",
+    title: "Born in Calamba, Laguna",
+    description: "José Protasio Rizal Mercado y Alonso Realonda is born, the seventh of eleven children in a landholding family.",
+  },
+  {
+    year: 1872,
+    date_label: "February 17",
+    title: "Execution of Gomburza",
+    description: "Fathers Gomez, Burgos and Zamora are executed after the Cavite mutiny. Rizal, aged 10, later credits the event with shaping his purpose.",
+  },
+  {
+    year: 1877,
+    date_label: "March",
+    title: "Graduates from Ateneo",
+    description: "Rizal finishes his Bachelor of Arts at the Ateneo Municipal and goes on to study at the University of Santo Tomás.",
+  },
+  {
+    year: 1882,
+    date_label: "May 3",
+    title: "Leaves for Spain",
+    description: "He sails to Madrid to continue medical studies and joins the circle of Filipino reformists abroad.",
+  },
+  {
+    year: 1887,
+    date_label: "March",
+    title: "Noli Me Tangere published",
+    description: "The novel is printed in Berlin with the help of friends and is soon banned in the Philippines.",
+  },
+  {
+    year: 1889,
+    date_label: "February",
+    title: "Writes for La Solidaridad",
+    description: "Rizal begins contributing to the reform newspaper of Filipinos in Spain, arguing for representation and equal rights.",
+  },
+  {
+    year: 1891,
+    date_label: "September",
+    title: "El Filibusterismo published",
+    description: "The second novel is printed in Ghent and dedicated to Gomburza.",
+  },
+  {
+    year: 1892,
+    date_label: "July 3",
+    title: "Founds La Liga Filipina",
+    description: "Back in Manila, Rizal forms a civic association for mutual aid and reform. He is arrested three days later and deported to Dapitan.",
+  },
+  {
+    year: 1892,
+    date_label: "July 17",
+    title: "Exile in Dapitan begins",
+    description: "During four years of exile he runs a clinic, teaches boys, and helps build a water system for the town.",
+  },
+  {
+    year: 1896,
+    date_label: "August",
+    title: "Katipunan revolt begins",
+    description: "Rizal, on his way to Cuba as a volunteer army doctor, is arrested aboard ship and returned to Manila for trial.",
+  },
+  {
+    year: 1896,
+    date_label: "December 30",
+    title: "Executed at Bagumbayan",
+    description: "Convicted of rebellion, Rizal is shot by firing squad at Bagumbayan, now Rizal Park. He is 35.",
+  },
+];
 
 /* ─── Exhibits: each work is a 3D book; turn it over to read its influence ─ */
 const COVERS = { Novel: ["#7a2a22", "#1f2a44"], Essay: ["#2f4a3c"], Poem: ["#5a3a1e"] };
@@ -110,116 +205,21 @@ function renderTimeline(items) {
   );
 }
 
-/* ─── Reflections ─────────────────────────────────────────────────────── */
-function formatDate(value) {
-  return new Date(String(value).replace(" ", "T")).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
-
-function reflectionNode(r) {
-  const row = el("article", "row reflection");
-  const by = el("p", "reflection-by");
-  by.append(el("strong", null, r.name), document.createTextNode(` · ${formatDate(r.created_at)}`));
-  row.append(el("p", "reflection-text", r.message), by);
-  return row;
-}
-
-function renderReflections(items) {
-  const list = $("reflection-list");
-  if (!items.length) {
-    list.replaceChildren(el("p", "status", "No reflections yet. Be the first to post one."));
-    return;
-  }
-  list.replaceChildren(...items.map(reflectionNode));
-}
-
-function setMeta(counts) {
-  const box = $("header-meta");
+/* ─── Header stats ────────────────────────────────────────────────────── */
+function setMeta() {
   const stat = (n, label) => {
     const p = el("p", "header-meta");
     p.append(el("span", "meta-count", String(n)), el("span", "meta-label", label));
     return p;
   };
-  box.replaceChildren(
-    stat(counts.exhibits, "Works on display"),
-    stat(counts.timeline, "Milestones"),
-    stat(counts.reflections, "Reflections"),
+  $("header-meta").replaceChildren(
+    stat(EXHIBITS.length, "Works on display"),
+    stat(TIMELINE.length, "Milestones"),
+    stat(11, "Places on the journey"),
     stat("1861–96", "Rizal's lifetime")
   );
 }
 
-/* ─── Guestbook form ──────────────────────────────────────────────────── */
-function setupForm(state) {
-  const form = $("reflection-form");
-  const msg = $("form-msg");
-  const btn = $("submit-btn");
-  const count = $("char-count");
-  const textarea = form.elements.message;
-
-  textarea.addEventListener("input", () => {
-    count.textContent = `${textarea.value.length} / 500`;
-  });
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    msg.className = "form-msg";
-    msg.textContent = "";
-
-    const name = form.elements.name.value.trim();
-    const message = textarea.value.trim();
-    if (!name) return fail("Enter your name.");
-    if (message.length < 10) return fail("Write at least 10 characters.");
-
-    btn.disabled = true;
-    btn.textContent = "Posting…";
-    try {
-      const res = await fetch("api/submit_reflection.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, message }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Could not post your reflection.");
-
-      // Show it straight away, at the top of the list
-      const list = $("reflection-list");
-      if (list.querySelector(".status")) list.replaceChildren();
-      list.prepend(reflectionNode(data));
-      state.reflections += 1;
-      setMeta(state);
-
-      form.reset();
-      count.textContent = "0 / 500";
-      msg.textContent = "Reflection posted.";
-    } catch (err) {
-      fail(err.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "Post reflection";
-    }
-
-    function fail(text) {
-      msg.className = "form-msg error";
-      msg.textContent = text;
-    }
-  });
-}
-
-/* ─── Start ───────────────────────────────────────────────────────────── */
-async function init() {
-  const state = { exhibits: 0, timeline: 0, reflections: 0 };
-
-  const jobs = [
-    getJSON("api/get_exhibits.php").then((d) => { state.exhibits = d.length; renderExhibits(d); })
-      .catch(() => showError($("exhibit-list"), "Exhibits could not be loaded. Check that Apache and MySQL are running.")),
-    getJSON("api/get_timeline.php").then((d) => { state.timeline = d.length; renderTimeline(d); })
-      .catch(() => showError($("timeline-list"), "The timeline could not be loaded.")),
-    getJSON("api/get_reflections.php").then((d) => { state.reflections = d.length; renderReflections(d); })
-      .catch(() => showError($("reflection-list"), "Reflections could not be loaded.")),
-  ];
-
-  await Promise.all(jobs);
-  setMeta(state);
-  setupForm(state);
-}
-
-init();
+renderExhibits(EXHIBITS);
+renderTimeline(TIMELINE);
+setMeta();

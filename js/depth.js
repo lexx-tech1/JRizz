@@ -41,13 +41,13 @@
     en.target.classList.add("in");
     shelfIO.unobserve(en.target);
   }), { threshold: 0.2 });
-  new MutationObserver(() => {
-    document.querySelectorAll(".book3d:not([data-seen])").forEach((b, i) => {
-      b.dataset.seen = 1;
-      b.style.setProperty("--d", `${i * 90}ms`);
-      shelfIO.observe(b);
-    });
-  }).observe(document.getElementById("exhibit-list") || document.body, { childList: true });
+  const shelve = () => document.querySelectorAll(".book3d:not([data-seen])").forEach((b, i) => {
+    b.dataset.seen = 1;
+    b.style.setProperty("--d", `${i * 90}ms`);
+    shelfIO.observe(b);
+  });
+  new MutationObserver(shelve).observe(document.getElementById("exhibit-list") || document.body, { childList: true });
+  shelve();
 
   /* Timeline drum: rows near the middle of the screen face you, the rest roll away */
   const events = () => document.querySelectorAll("#timeline-list .event");
@@ -68,5 +68,6 @@
     addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(drum); } }, { passive: true });
     addEventListener("resize", drum);
     new MutationObserver(drum).observe(document.getElementById("timeline-list"), { childList: true });
+    drum();
   }
 })();

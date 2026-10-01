@@ -25,14 +25,12 @@ const FACTS = [
 ];
 
 /* Reveal on scroll */
-let fresh = false;
 const io = new IntersectionObserver((es) => es.forEach((e) => {
   if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
 }), { threshold: 0.15 });
 function watch() {
   $$(".row:not([data-w]), .section-row:not([data-w]), .journey li:not([data-w])").forEach((n) => {
     n.dataset.w = 1;
-    if (fresh && n.classList.contains("reflection")) n.classList.add("write-in");
     io.observe(n);
   });
 }
@@ -55,6 +53,8 @@ function buildFilters() {
   });
 }
 new MutationObserver(() => { watch(); buildFilters(); }).observe(document.body, { childList: true, subtree: true });
+watch();
+buildFilters();
 
 /* Journey + archive */
 $("journey-list").append(...STOPS.map(([y, place, note], i) => {
@@ -90,11 +90,4 @@ const spy = new IntersectionObserver((es) => es.forEach((e) => {
 }), { rootMargin: "-35% 0px -60% 0px" });
 $$("section[id]").forEach((s) => spy.observe(s));
 
-/* Form polish: warn near the limit, and let new reflections "write in" */
-const ta = document.querySelector("#reflection-form textarea");
-ta.addEventListener("input", () => { $("char-count").style.color = ta.value.length > 450 ? "var(--c-error-ink)" : ""; });
-$("reflection-form").addEventListener("submit", () => {
-  fresh = true;
-  setTimeout(() => { fresh = false; $("char-count").style.color = ""; }, 6000);
-});
 

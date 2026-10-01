@@ -35,7 +35,6 @@
         <a href="#timeline">Timeline</a>
         <a href="#journey">Journey</a>
         <a href="#archive">Archive</a>
-        <a href="#reflections">Reflections</a>
       </nav>
     </div>
   </header>
@@ -154,7 +153,7 @@
               <p>From a boy in Calamba to the martyr of Bagumbayan, you followed how Rizal's pen helped a scattered
                 colony imagine itself as one nation.</p>
               <div class="g3d-actions">
-                <a class="btn" href="#reflections" id="g3d-done-close">Leave a reflection</a>
+                <a class="btn" href="#influence" id="g3d-done-close">Follow the chain of influence</a>
                 <button class="btn btn-ghost" type="button" id="g3d-reset">Start over</button>
               </div>
             </div>
@@ -272,49 +271,6 @@
       </div>
     </section>
 
-    <!-- Reflections -->
-    <section id="reflections" aria-labelledby="reflections-label">
-      <div class="section-row">
-        <h2 class="section-label" id="reflections-label">Visitor Reflections</h2>
-        <div class="section-divider"></div>
-      </div>
-
-      <div class="sky-stage" id="sky-stage">
-        <canvas id="sky-canvas" aria-label="Night sky of star lanterns, one for each visitor reflection. The reflections are also listed below."></canvas>
-        <div class="sky-hud">
-          <p class="sky-count" id="sky-count">0 lanterns lit</p>
-          <button class="btn" type="button" id="sky-write">Light a lantern</button>
-        </div>
-        <p class="sky-empty" id="sky-empty" hidden></p>
-        <div class="g3d-tip" id="sky-tip" hidden></div>
-        <div class="sky-card" id="sky-card" aria-live="polite" hidden></div>
-      </div>
-
-      <form class="form" id="reflection-form" novalidate>
-        <p class="form-intro">
-          What did you learn about nationalism from Rizal? Leave a short note, and it rises into the sky above as a
-          parol, the Filipino star lantern.
-        </p>
-        <label class="field">
-          <span class="field-label">Your name</span>
-          <input class="input" type="text" name="name" maxlength="80" required autocomplete="name" />
-        </label>
-        <label class="field">
-          <span class="field-label">Your reflection</span>
-          <textarea class="input textarea" name="message" rows="4" minlength="10" maxlength="500" required></textarea>
-          <span class="field-count" id="char-count">0 / 500</span>
-        </label>
-        <div class="form-actions">
-          <button class="btn" type="submit" id="submit-btn">Post reflection</button>
-          <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
-        </div>
-      </form>
-
-      <div class="table" id="reflection-list">
-        <p class="status">Loading reflections…</p>
-      </div>
-    </section>
-
     <footer class="footer">
       <p class="header-meta">An educational project · Sources: Rizal's writings and standard Philippine history
         references</p>
@@ -338,7 +294,6 @@
   <script type="module" src="js/gallery3d.js"></script>
   <script type="module" src="js/chain3d.js"></script>
   <script type="module" src="js/journey3d.js"></script>
-  <script type="module" src="js/lanterns3d.js"></script>
 </body>
 
 </html>

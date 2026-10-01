@@ -1,4 +1,4 @@
-/* Shared helpers for the 3D sections (story, chain, journey, lanterns). */
+/* Shared helpers for the 3D sections (story, chain, journey). */
 import * as THREE from "three";
 
 export { THREE };
